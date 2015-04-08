@@ -1,0 +1,55 @@
+Laravel validation sevices
+
+http://tntstudio.us/blog/laravel-form-validation-as-a-service
+
+------------------------------------------------------------------------
+
+virual host should point on /root/web
+
+Yii2 pretty url
+
+1) create an ".htaccess" file in ROOT WEB DIRECTORY with
+
+'RewriteEngine on
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule . index.php'
+
+2) in config/web.php under components add 
+'urlManager' => [
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+        ] 
+
+------------------------------------------------------------------------
+
+cd sites/task/task-start
+vagran up
+vagrant ssh
+cd /work/
+looks like vagrant@packer-debian-7:/work$
+
+------------------------------------------------------------------------
+
+ssh root@100pro.dev.ephyros.com
+co4rymew
+
+cd ../var/www/us
+
+------------------------------------------------------------------------
+
+meta teg og:image, og:title итд могут служить для дефолтной подстановки 
+значений при использовании кнопок соцсетей
+
+vk share button не поддерживает png(походу, до конца не уверен)
+
+------------------------------------------------------------------------
+
+чтобы скачать файл с сервера, к которому есть доступ по ssh
+команда:
+scp spruce@spruce.dev.ehyros.com:/path/to/hosts/file/file.tar ~
+скачает его из /path/to/hosts/file/file.tar на сервере в ~ на локальной машине
+
+
