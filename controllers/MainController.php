@@ -4,12 +4,14 @@ namespace app\controllers;
 
 use app\models\FileUpload;
 use Yii;
+use yii\base\Exception;
 use yii\web\Controller;
 use app\models\Profiles;
 use app\models\Radcheck;
 use app\models\UserInfo;
 use app\models\AddUsersForm;
 use app\models\GroupForm;
+use yii\web\NotFoundHttpException;
 
 
 /**
@@ -22,11 +24,6 @@ class MainController extends Controller
     public $layout = 'index';
     public $students;
 
-    public function actionSend()
-    {
-        return $this->render('send');
-    }
-
     public function actionAdd()
     {
         $model = new AddUsersForm();
@@ -38,45 +35,6 @@ class MainController extends Controller
         foreach (GroupForm::find()->all() as $group) {
             $groups[$group->group] = $group->group;
         }
-//        if (Yii::$app->request->isPost) {
-//            $model->load(Yii::$app->request->post());
-//            if (
-//                ($model->group != null) &&
-//                ($model->tarif != null) &&
-//                ($model->firstName != null) &&
-//                ($model->lastName != null) &&
-//                ($model->middleName != null)
-//            ) {
-//                if ($model->validate()) {
-//                    if (empty($model->hidden)) {
-//                        $model->hidden = json_encode([[$model->lastName, $model->firstName, $model->middleName]]);
-//                    } else {
-//                        $arr = json_decode($model->hidden);
-//                        $arr[] = [$model->lastName, $model->firstName, $model->middleName];
-//                        $model->hidden = json_encode($arr);
-//                    }
-//                }
-//            } else {
-//                $modelFile->file = UploadedFile::getInstance($modelFile, 'file');
-//                if ($modelFile->validate()) {
-//                    $pathToFile = 'uploads/' . $modelFile->file->name;
-//                    $modelFile->file->saveAs($pathToFile);
-//                    $errorLog = $this->parseUploadedFile($pathToFile);
-//                    if (empty($errorLog)) {
-//                        $model->hidden = Yii::$app->request->post()['AddUsersForm']['hidden'];
-//                        if (!empty($model->hidden)) {
-//                            $arr = json_decode($model->hidden);
-//                            foreach ($this->students as $student) {
-//                                $arr[] = $student;
-//                            }
-//                            $model->hidden = json_encode($arr);
-//                        } else {
-//                            $model->hidden = json_encode($this->students);
-//                        }
-//                    }
-//                }
-//            }
-//        }
         return $this->render('index', [
             'tarifs' => $tarifs,
             'groups' => $groups,
@@ -131,20 +89,24 @@ class MainController extends Controller
 
     public function actionFileUpload()
     {
-        $postData = $_POST['studentData'];
-        $errors['error'] = $this->parseUploadedFile($postData);
-        if (empty($errors['error'])) {
-            $students = [];
-            foreach ($this->students as $key => $student) {
-                $students[$key]['lastname'] = $student[0];
-                $students[$key]['firstname'] = $student[1];
-                $students[$key]['middlename'] = $student[2];
-                $students[$key]['login'] = $this->generateLogin($students[$key]);
-                $students[$key]['pswrd'] = $this->generatePassword($students[$key]);
+        if (isset($_POST['studentData'])) {
+            $postData = $_POST['studentData'];
+            $errors['error'] = $this->parseUploadedFile($postData);
+            if (empty($errors['error'])) {
+                $students = [];
+                foreach ($this->students as $key => $student) {
+                    $students[$key]['lastname'] = $student[0];
+                    $students[$key]['firstname'] = $student[1];
+                    $students[$key]['middlename'] = $student[2];
+                    $students[$key]['login'] = $this->generateLogin($students[$key]);
+                    $students[$key]['pswrd'] = $this->generatePassword($students[$key]);
+                }
+                return json_encode($students);
+            } else {
+                return json_encode($errors);
             }
-            return json_encode($students);
         } else {
-            return json_encode($errors);
+            return $this->render('disabled');
         }
     }
 
@@ -157,126 +119,152 @@ class MainController extends Controller
      */
     public function actionUpload()
     {
-        $students = json_decode($_POST['postData']);
-        $profiles = Profiles::find()->all();
-        foreach ($profiles as $profile) {
-            $tarifs[] = $profile->name;
-        }
-        $studentsWithErrors = $this->validateStudentInfo($students);
-        foreach ($students as $key => $student) {
-            if (!array_key_exists($key, $studentsWithErrors)) {
-                $lastName = $student[0];
-                $firstName = $student[1];
-                $middleName = $student[2];
-                $group = $student[6];
-                $login = $student[3];
-                $password = $student[4];
-                $tarif = $tarifs[$student[5]];
-                $userInfo = new UserInfo();
-                $userInfo->username = $login;
-                $userInfo->last_name = $lastName;
-                $userInfo->first_name = $firstName;
-                $userInfo->middle_name = $middleName;
-                $userInfo->group = $group;
-                $userInfo->tarif = $tarif;
-                $userInfo->save();
-                $radcheck = new Radcheck();
-                $radcheck->username = $login;
-                $radcheck->attribute = 'Cleartext-Password';
-                $radcheck->op = ':=';
-                $radcheck->value = $password;
-                $radcheck->save();
-                $radcheck = new Radcheck();
-                $radcheck->username = $login;
-                $radcheck->attribute = 'Rd-User-Type';
-                $radcheck->op = ':=';
-                $radcheck->value = 'user';
-                $radcheck->save();
-                $radcheck = new Radcheck();
-                $radcheck->username = $login;
-                $radcheck->attribute = 'Rd-Realm';
-                $radcheck->op = ':=';
-                $radcheck->value = 'pma_wifi';
-                $radcheck->save();
-                $radcheck = new Radcheck();
-                $radcheck->username = $login;
-                $radcheck->attribute = 'User-Profile';
-                $radcheck->op = ':=';
-                $radcheck->value = $tarif;
-                $radcheck->save();
-                $radcheck = new Radcheck();
-                $radcheck->username = $login;
-                $radcheck->attribute = 'Rd-Cap-Type-Data';
-                $radcheck->op = ':=';
-                $radcheck->value = 'hard';
-                $radcheck->save();
-                $radcheck = new Radcheck();
-                $radcheck->username = $login;
-                $radcheck->attribute = 'Rd-Account-Disabled';
-                $radcheck->op = ':=';
-                $radcheck->value = '0';
-                $radcheck->save();
+        if (isset($_POST['postData'])) {
+
+            $students = json_decode($_POST['postData']);
+            $profiles = Profiles::find()->all();
+            foreach ($profiles as $profile) {
+                $tarifs[] = $profile->name;
             }
-        }
-        foreach ($students as $key => $student) {
-            if (array_key_exists($key, $studentsWithErrors)) {
-                $students[$key][7] = $studentsWithErrors[$key];
+            $studentsWithErrors = $this->validateStudentInfo($students);
+            foreach ($students as $key => $student) {
+                if (!array_key_exists($key, $studentsWithErrors)) {
+                    $lastName = $student[0];
+                    $firstName = $student[1];
+                    $middleName = $student[2];
+                    $group = $student[6];
+                    $login = $student[3];
+                    $password = $student[4];
+                    $tarif = $tarifs[$student[5]];
+                    $userInfo = new UserInfo();
+                    $userInfo->username = $login;
+                    $userInfo->last_name = $lastName;
+                    $userInfo->first_name = $firstName;
+                    $userInfo->middle_name = $middleName;
+                    $userInfo->group = $group;
+                    $userInfo->tarif = $tarif;
+                    $userInfo->save();
+                    $radcheck = new Radcheck();
+                    $radcheck->username = $login;
+                    $radcheck->attribute = 'Cleartext-Password';
+                    $radcheck->op = ':=';
+                    $radcheck->value = $password;
+                    $radcheck->save();
+                    $radcheck = new Radcheck();
+                    $radcheck->username = $login;
+                    $radcheck->attribute = 'Rd-User-Type';
+                    $radcheck->op = ':=';
+                    $radcheck->value = 'user';
+                    $radcheck->save();
+                    $radcheck = new Radcheck();
+                    $radcheck->username = $login;
+                    $radcheck->attribute = 'Rd-Realm';
+                    $radcheck->op = ':=';
+                    $radcheck->value = 'pma_wifi';
+                    $radcheck->save();
+                    $radcheck = new Radcheck();
+                    $radcheck->username = $login;
+                    $radcheck->attribute = 'User-Profile';
+                    $radcheck->op = ':=';
+                    $radcheck->value = $tarif;
+                    $radcheck->save();
+                    $radcheck = new Radcheck();
+                    $radcheck->username = $login;
+                    $radcheck->attribute = 'Rd-Cap-Type-Data';
+                    $radcheck->op = ':=';
+                    $radcheck->value = 'hard';
+                    $radcheck->save();
+                    $radcheck = new Radcheck();
+                    $radcheck->username = $login;
+                    $radcheck->attribute = 'Rd-Account-Disabled';
+                    $radcheck->op = ':=';
+                    $radcheck->value = '0';
+                    $radcheck->save();
+                }
             }
+            foreach ($students as $key => $student) {
+                if (array_key_exists($key, $studentsWithErrors)) {
+                    $students[$key][7] = $studentsWithErrors[$key];
+                }
+            }
+            return json_encode($students);
+        } else {
+            return $this->render('disabled');
         }
-        return json_encode($students);
     }
 
     public function actionDeleteGroup()
     {
-        GroupForm::findOne(['group' => $_POST['postData']])->delete();
+        if (isset($_POST['postData'])) {
+            GroupForm::findOne(['group' => $_POST['postData']])->delete();
+        } else {
+            return $this->render('disabled');
+        }
     }
 
     public function actionAddGroup()
     {
-        $group = $_POST['postData'];
-        $model = new GroupForm();
-        if (GroupForm::findOne(['group' => $group])) {
-            return 'Group already exists';
+        if (isset($_POST['postData'])) {
+            $group = $_POST['postData'];
+            $model = new GroupForm();
+            if (GroupForm::findOne(['group' => $group])) {
+                return 'Group already exists';
+            } else {
+                $model->group = $group;
+                $model->save();
+                return 'Group created';
+            }
         } else {
-            $model->group = $group;
-            $model->save();
-            return 'Group created';
+            return $this->render('disabled');
         }
     }
 
     public function actionDeleteStudents()
     {
-        $studentsToDelete = json_decode($_POST['postData']);
-        foreach ($studentsToDelete as $student) {
-            UserInfo::findOne(['username' => $student])->delete();
-            $radcheckData = Radcheck::findAll(['username' => $student]);
-            foreach ($radcheckData as $student) {
-                $student->delete();
+        if (isset($_POST['postData'])) {
+            $studentsToDelete = json_decode($_POST['postData']);
+            foreach ($studentsToDelete as $student) {
+                UserInfo::findOne(['username' => $student])->delete();
+                $radcheckData = Radcheck::findAll(['username' => $student]);
+                foreach ($radcheckData as $student) {
+                    $student->delete();
+                }
             }
+        } else {
+            return $this->render('disabled');
         }
     }
 
     public function actionEnableStudents()
     {
-        $studentsToDisable = json_decode($_POST['postData']);
-        foreach ($studentsToDisable as $student) {
-            $radcheckStudent = Radcheck::findAll(['username' => $student, 'attribute' => 'Rd-Account-Disabled']);
-            foreach ($radcheckStudent as $singleStudent) {
-                $singleStudent->value = '0';
-                $singleStudent->save();
+        if (isset($_POST['postData'])) {
+            $studentsToDisable = json_decode($_POST['postData']);
+            foreach ($studentsToDisable as $student) {
+                $radcheckStudent = Radcheck::findAll(['username' => $student, 'attribute' => 'Rd-Account-Disabled']);
+                foreach ($radcheckStudent as $singleStudent) {
+                    $singleStudent->value = '0';
+                    $singleStudent->save();
+                }
             }
+        } else {
+            return $this->render('disabled');
         }
     }
 
     public function actionDisableStudents()
     {
-        $studentsToDisable = json_decode($_POST['postData']);
-        foreach ($studentsToDisable as $student) {
-            $radcheckStudent = Radcheck::findAll(['username' => $student, 'attribute' => 'Rd-Account-Disabled']);
-            foreach ($radcheckStudent as $singleStudent) {
-                $singleStudent->value = '1';
-                $singleStudent->save();
+        if (isset($_POST['postData'])) {
+
+            $studentsToDisable = json_decode($_POST['postData']);
+            foreach ($studentsToDisable as $student) {
+                $radcheckStudent = Radcheck::findAll(['username' => $student, 'attribute' => 'Rd-Account-Disabled']);
+                foreach ($radcheckStudent as $singleStudent) {
+                    $singleStudent->value = '1';
+                    $singleStudent->save();
+                }
             }
+        } else {
+            return $this->render('disabled');
         }
     }
 
