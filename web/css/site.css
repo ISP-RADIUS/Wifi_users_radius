@@ -93,3 +93,9 @@ a.desc:after {
 .btn-sm:hover {
     background-color: #EC2121;
 }
+
+a.auth, a.auth:hover {
+    color: black;
+    font-size: 16px;
+}
+
