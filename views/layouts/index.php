@@ -26,8 +26,19 @@ AppAsset::register($this);
 <?php $this->beginBody() ?>
 <div class="container">
     <header>
-        <h2 align="center">WiFi users view and add students</h2>
-
+        <div class="row">
+            <div class="col-xs-8 col-xs-offset-2">
+                <h2 align="center">WiFi users view and add students</h2>
+            </div>
+            <div class="col-xs-2">
+                <?php if (Yii::$app->user->isGuest): ?>
+                    <h3><a class="auth" href="/main/login" data-method="post">Login</a></h3>
+                <?php endif; ?>
+                <?php if (!Yii::$app->user->isGuest): ?>
+                    <h3><a class="auth" href="/main/logout" data-method="post">Logout (<?= Yii::$app->user->identity->username ?>)</a></h3>
+                <?php endif; ?>
+            </div>
+        </div>
         <div class="row">
             <div class="col-xs-1 col-xs-offset-5">
                 <a href="<?= Url::to('list') ?>">
