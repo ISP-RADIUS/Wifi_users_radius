@@ -24,8 +24,9 @@ class MainController extends Controller
 
     public $layout = 'index';
     public $students;
+
     /**
-    AUTHORIZATION START
+     * AUTHORIZATION START
      */
     public function actionLogin()
     {
@@ -47,8 +48,9 @@ class MainController extends Controller
         Yii::$app->user->logout();
         return $this->redirect('/main/list');
     }
+
     /**
-    AUTHORIZATION END
+     * AUTHORIZATION END
      */
 
     public function actionAdd()
@@ -230,6 +232,14 @@ class MainController extends Controller
     {
         if (isset($_POST['postData'])) {
             GroupForm::findOne(['group' => $_POST['postData']])->delete();
+            $usersToDelete = UserInfo::findAll(['group' => $_POST['postData']]);
+            foreach ($usersToDelete as $user) {
+                $user->delete();
+                $radsToDelete = Radcheck::findAll(['username' => $user->username]);
+                foreach ($radsToDelete as $rad) {
+                    $rad->delete();
+                }
+            }
         } else {
             return $this->render('disabled');
         }
