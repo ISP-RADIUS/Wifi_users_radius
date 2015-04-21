@@ -1,6 +1,11 @@
-<div class="row">
+<div class="row" id="groups-to-print">
+
+    <button class="btn btn-default btn-print">
+        <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+    </button>
+    <hr>
     <?php foreach ($groups as $group): ?>
-        <div class="col-xs-10">
+        <div class="col-xs-11 groups-to-print">
             <details>
                 <summary class="checkbox">
                     <label class="col-xs-offset"><input type="checkbox" id="<?= $group->group ?>"
@@ -9,7 +14,7 @@
                         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                     </button>
                 </summary>
-                <table class="table table-hover col-xs-offset-1">
+                <table class="table table-hover">
                     <thead>
                     <tr>
                         <th></th>
@@ -18,6 +23,7 @@
                         <th>Middle Name</th>
                         <th>Tarif</th>
                         <th>Availability</th>
+                        <th>Login</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -26,13 +32,18 @@
 
                             <tr>
                                 <td><input type="checkbox" value="<?= $student->username ?>"
-                                           class="groupChildCheckbox <?= $student->group ?> CheckboxChild"></td>
+                                           class="groupChildCheckbox <?= $student->group ?> CheckboxChild">
+                                    <input type="hidden" value="<?= $accounts[$student->username] ?>">
+                                    <input type="hidden"
+                                           value="<?= $student->last_name . ' ' . $student->first_name . ' ' . $student->middle_name ?>">
+                                    <input type="hidden" value="<?= $student->group ?>">
+                                </td>
                                 <td><?= $student->last_name ?></td>
                                 <td><?= $student->first_name ?></td>
                                 <td><?= $student->middle_name ?></td>
                                 <td><?= $student->tarif ?></td>
                                 <td><?= $isDisabled[$student->username] ?></td>
-
+                                <td><?= $student->username ?></td>
                             </tr>
                         <?php endif; ?>
                     <?php endforeach; ?>

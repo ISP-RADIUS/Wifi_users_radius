@@ -37,6 +37,7 @@ class MainController extends Controller
             ],
         ];
     }
+
     /**
      * AUTHORIZATION START
      */
@@ -96,6 +97,10 @@ class MainController extends Controller
         }
         $students = UserInfo::find()->all();
         $groups = GroupForm::find()->all();
+        $rad = Radcheck::findAll(['attribute' => 'Cleartext-Password']);
+        foreach ($rad as $account) {
+            $accounts[$account->username] = $account->value;
+        }
         $isDisabled = [];
         foreach ($students as $student) {
             $radcheckStudent = Radcheck::findAll(['username' => $student->username, 'attribute' => 'Rd-Account-Disabled']);
@@ -111,7 +116,8 @@ class MainController extends Controller
         return $this->render('list', [
             'students' => $students,
             'groups' => $groups,
-            'isDisabled' => $isDisabled
+            'isDisabled' => $isDisabled,
+            'accounts' => $accounts
         ]);
     }
 

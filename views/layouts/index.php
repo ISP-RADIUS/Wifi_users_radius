@@ -55,7 +55,6 @@ AppAsset::register($this);
         </div>
         <br><br>
     </header>
-    <hr>
     <?= $content ?>
 </div>
 

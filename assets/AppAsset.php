@@ -25,7 +25,8 @@ class AppAsset extends AssetBundle
         'js/tabs.js',
         'js/checkboxes.js',
         'js/generate.js',
-        'js/buttons.js'
+        'js/buttons.js',
+        'js/print.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',
