@@ -1,6 +1,7 @@
 <div class="row" id="groups-to-print">
 
     <button class="btn btn-default btn-print">
+        Print selected students<br>
         <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
     </button>
     <hr>

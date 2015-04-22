@@ -1,4 +1,8 @@
 $('.btn-print').click(function () {
+    if ($('.groupChildCheckbox:checked').length == 0) {
+        alert('You did not select any student');
+        return false;
+    }
     var data = '';
     $('.groupChildCheckbox:checked').each(function () {
         data += '<tr>';

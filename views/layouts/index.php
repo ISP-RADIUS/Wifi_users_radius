@@ -40,15 +40,15 @@ AppAsset::register($this);
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-1 col-xs-offset-5">
+            <div class="col-xs-6" align="right">
                 <a href="<?= Url::to('list') ?>">
-                    <button class="btn btn-default"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                    <button id="list" class="btn btn-default">List students<br><span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                     </button>
                 </a>
             </div>
-            <div class="col-xs-3">
+            <div class="col-xs-6" align="left">
                 <a href="<?= Url::to('add') ?>">
-                    <button class="btn btn-default"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    <button id="add" class="btn btn-default">Add new students<br><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                     </button>
                 </a>
             </div>
