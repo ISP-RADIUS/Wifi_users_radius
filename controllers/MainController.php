@@ -87,8 +87,7 @@ class MainController extends Controller
             foreach ($allGroups as $group) {
                 $groups[$group->group] = $group->group;
             }
-        }
-        else {
+        } else {
             $groups = null;
         }
         return $this->render('index', [
