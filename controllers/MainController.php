@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\FileUpload;
+use app\models\User;
 use Yii;
 use yii\web\Controller;
 use app\models\Profiles;
@@ -10,9 +11,8 @@ use app\models\Radcheck;
 use app\models\UserInfo;
 use app\models\AddUsersForm;
 use app\models\GroupForm;
-use yii\filters\AccessControl;
-use yii\filters\VerbFilter;
 use app\models\LoginForm;
+use app\models\Users;
 
 
 /**
@@ -60,6 +60,11 @@ class MainController extends Controller
     {
         Yii::$app->user->logout();
         return $this->redirect('/main/list');
+    }
+
+    public function actionIndex()
+    {
+        $this->redirect('/list');
     }
 
     /**
@@ -173,7 +178,6 @@ class MainController extends Controller
     public function actionUpload()
     {
         if (isset($_POST['postData'])) {
-
             $students = json_decode($_POST['postData']);
             $profiles = Profiles::find()->all();
             foreach ($profiles as $profile) {
@@ -233,6 +237,37 @@ class MainController extends Controller
                     $radcheck->op = ':=';
                     $radcheck->value = '0';
                     $radcheck->save();
+                    $user = new Users();
+                    $rootUser = Users::findOne(['username' => 'root']);
+                    $user->username = $login;
+                    $user->password = 'empty';
+                    $user->name = 'empty';
+                    $user->surname = 'empty';
+                    $user->address = 'empty';
+                    $user->phone = 'empty';
+                    $user->email = 'empty';
+                    $user->auth_type = 'sql';
+                    $user->active = 1;
+                    $user->monitor = 0;
+                    $user->country_id = 4;
+                    $user->group_id = 10;
+                    $user->language_id = 4;
+                    $user->parent_id = $rootUser->id;
+                    $user->lft = $rootUser->rght;
+                    $user->rght = $rootUser->rght + 1;
+                    $user->created = date('o-m-d H:i:s', time() + 60 * 60 * 3);
+                    $user->modified = date('o-m-d H:i:s', time() + 60 * 60 * 3);
+                    $user->time_cap_type = 'soft';
+                    $user->data_cap_type = 'soft';
+                    $user->realm = 'pma_wifi';
+                    $user->realm_id = '34';
+                    $user->profile = $tarif;
+                    $user->profile_id = Profiles::findOne(['name' => $tarif])->id;
+                    $user->track_auth = 1;
+                    $user->track_acct = 1;
+                    $user->save();
+                    $rootUser->rght += 2;
+                    $rootUser->update(false);
                 }
             }
             foreach ($students as $key => $student) {
@@ -257,6 +292,10 @@ class MainController extends Controller
                 foreach ($radsToDelete as $rad) {
                     $rad->delete();
                 }
+                Users::findOne(['username' => $user->username])->delete();
+                $rootUser = Users::findOne(['username' => 'root']);
+                $rootUser->rght = sizeof(Users::find()->all()) * 2;
+                $rootUser->update(false);
             }
         } else {
             return $this->render('disabled');
@@ -286,6 +325,10 @@ class MainController extends Controller
             $studentsToDelete = json_decode($_POST['postData']);
             foreach ($studentsToDelete as $student) {
                 UserInfo::findOne(['username' => $student])->delete();
+                Users::findOne(['username' => $student])->delete();
+                $rootUser = Users::findOne(['username' => 'root']);
+                $rootUser->rght = sizeof(Users::find()->all()) * 2;
+                $rootUser->update(false);
                 $radcheckData = Radcheck::findAll(['username' => $student]);
                 foreach ($radcheckData as $student) {
                     $student->delete();

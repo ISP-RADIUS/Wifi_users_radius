@@ -42,6 +42,7 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 '/' => 'main/list',
+                '/login' => 'main/login',
                 '/list' => 'main/list',
                 '/add' => 'main/add',
             ]
