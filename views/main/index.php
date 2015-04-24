@@ -97,6 +97,7 @@ use yii\helpers\Html;
     </div>
     <div class="row error-data" style="display: none">
         <div class="col-xs-7">
+            <h4>The lines in file must have only student names! Student name must consist of: Last_name First_name Middle_name</h4><br>
             <h2>Error Log</h2>
             <table class="table table-hover col-xs-5">
                 <thead>

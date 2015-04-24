@@ -291,18 +291,16 @@ class MainController extends Controller
         if (isset($_POST['postData'])) {
             GroupForm::findOne(['group' => $_POST['postData']])->delete();
             $usersToDelete = UserInfo::findAll(['group' => $_POST['postData']]);
-            if (!empty($usersToDelete)) {
-                foreach ($usersToDelete as $user) {
-                    $user->delete();
-                    $radsToDelete = Radcheck::findAll(['username' => $user->username]);
-                    foreach ($radsToDelete as $rad) {
-                        $rad->delete();
-                    }
-                    Users::findOne(['username' => $user->username])->delete();
-                    $rootUser = Users::findOne(['username' => 'root']);
-                    $rootUser->rght = sizeof(Users::find()->all()) * 2;
-                    $rootUser->update(false);
+            foreach ($usersToDelete as $user) {
+                $user->delete();
+                $radsToDelete = Radcheck::findAll(['username' => $user->username]);
+                foreach ($radsToDelete as $rad) {
+                    $rad->delete();
                 }
+                Users::findOne(['username' => $user->username])->delete();
+                $rootUser = Users::findOne(['username' => 'root']);
+                $rootUser->rght = sizeof(Users::find()->all()) * 2;
+                $rootUser->update(false);
             }
         } else {
             return $this->render('disabled');
