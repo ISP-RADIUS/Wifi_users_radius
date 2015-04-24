@@ -7,8 +7,8 @@ use yii\helpers\Html;
 
 <div class="row">
     <ul class="nav nav-tabs">
-        <li class="active manual"><a href="#manual">Manual</a></li>
-        <li class="file"><a href="#file">File</a></li>
+        <li class="active manual"><a href="#manual">Manual add student</a></li>
+        <li class="file"><a href="#file">Load students list from file</a></li>
     </ul>
 </div>
 <br>
@@ -67,7 +67,7 @@ use yii\helpers\Html;
 <hr>
 <div class="row table-data" style="display: none">
     <div class="col-xs-12">
-        <h2>Result</h2>
+        <h2>List of students to be created</h2>
         <table class="table table-hover table-bordered">
             <thead>
             <tr>
@@ -85,8 +85,13 @@ use yii\helpers\Html;
         </table>
         <div class="row">
             <div class="col-xs-4">
-                <?= $form->field($model, 'group')->dropDownList($groups); ?>
-                <button class="btn btn-primary" id="database-upload">Add to database</button>
+                <?php if (!empty($groups)): ?>
+                    <?= $form->field($model, 'group')->dropDownList($groups); ?>
+                <?php endif; ?>
+                <?php if (empty($groups)): ?>
+                    <h2 style="color: red">No groups created</h2>
+                <?php endif; ?>
+                <button class="btn btn-primary" id="database-upload">Create new students</button>
                 <button class="btn btn-primary" id="clear-button">Clear</button>
             </div>
         </div>

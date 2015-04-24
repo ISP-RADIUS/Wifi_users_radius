@@ -40,7 +40,7 @@ class GroupForm extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'group' => 'Group',
+            'group' => 'Add students to group',
         ];
     }
 }
