@@ -82,8 +82,14 @@ class MainController extends Controller
         foreach (Profiles::find()->all() as $profile) {
             $tarifs[] = $profile->name;
         }
-        foreach (GroupForm::find()->all() as $group) {
-            $groups[$group->group] = $group->group;
+        $allGroups = GroupForm::find()->all();
+        if (!empty($allGroups)) {
+            foreach ($allGroups as $group) {
+                $groups[$group->group] = $group->group;
+            }
+        }
+        else {
+            $groups = null;
         }
         return $this->render('index', [
             'tarifs' => $tarifs,
