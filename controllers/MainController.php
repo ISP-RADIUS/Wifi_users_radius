@@ -262,8 +262,8 @@ class MainController extends Controller
                     $user->rght = $rootUser->rght + 1;
                     $user->created = date('o-m-d H:i:s', time() + 60 * 60 * 3);
                     $user->modified = date('o-m-d H:i:s', time() + 60 * 60 * 3);
-                    $user->time_cap_type = 'soft';
-                    $user->data_cap_type = 'soft';
+                    $user->time_cap_type = 'hard';
+                    $user->data_cap_type = 'hard';
                     $user->realm = 'pma_wifi';
                     $user->realm_id = '34';
                     $user->profile = $tarif;
