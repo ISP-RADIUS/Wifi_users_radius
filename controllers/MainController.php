@@ -108,8 +108,12 @@ class MainController extends Controller
         $students = UserInfo::find()->all();
         $groups = GroupForm::find()->all();
         $rad = Radcheck::findAll(['attribute' => 'Cleartext-Password']);
-        foreach ($rad as $account) {
-            $accounts[$account->username] = $account->value;
+        if (!empty($rad)) {
+            foreach ($rad as $account) {
+                $accounts[$account->username] = $account->value;
+            }
+        } else {
+            $accounts = [];
         }
         $isDisabled = [];
         foreach ($students as $student) {
